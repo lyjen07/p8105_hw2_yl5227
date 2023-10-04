@@ -5,7 +5,7 @@ date: "2023-10-03"
 output: github_document
 ---
 
-```{r}
+```{r message=FALSE}
 library(tidyverse)
 library(readxl)
 ```
@@ -106,4 +106,108 @@ There are missing values denoted as 'NA' for `close` and `unemployment_percent` 
 
 
 # Problem 2
+
+loading dataset
+
+```{r}
+df_tw = 
+  read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
+             sheet = "Mr. Trash Wheel", 
+             range = "A2:N586") |> 
+  janitor::clean_names()|> 
+  mutate(homes_powered = weight_tons * 500 / 30,
+         trash_wheel = "mr",
+         year=as.numeric(year)) 
+```
+
+```{r}
+df_ptw = 
+  read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
+             sheet = "Professor Trash Wheel", 
+             range = "A2:M108") |> 
+  janitor::clean_names() |> 
+  mutate(homes_powered = weight_tons * 500 / 30,
+         trash_wheel = "professor")
+```
+
+```{r}
+df_gtw = 
+  read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
+             sheet = "Gwynnda Trash Wheel", 
+             range = "A2:L157") |> 
+  janitor::clean_names() |> 
+  mutate(homes_powered = weight_tons * 500 / 30,
+         trash_wheel = "gwynnda")
+```
+
+
+combine 3 datasets
+
+```{r}
+df_merge_tw =
+  bind_rows(df_tw, df_gtw, df_ptw)
+```
+
+
+
+# Problem 3
+
+```{r}
+df_mci_bl =
+  read_csv("data/MCI_baseline.csv",
+           skip=1,
+           na=".") |> 
+  janitor::clean_names() |> 
+  mutate(sex = ifelse(sex == 1, "male", "female"),
+         apoe4 = ifelse(apoe4 == 1, "carrier", "non-carrier")) |> 
+  filter(current_age < age_at_onset|is.na(age_at_onset))
+```
+
+```{r}
+df_mci_amyloid =
+  read_csv("data/mci_amyloid.csv",
+           skip=1,
+           na=c("NA", "Na", "")) |> 
+  janitor::clean_names() |> 
+  pivot_longer(baseline:time_8,
+               names_to = "time",
+               values_to = "amyloid_ratio") |> 
+  rename(id = study_id)
+```
+
+
+How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
+
+```{r}
+nrow(df_mci_bl)
+
+sum(!is.na(pull(df_mci_bl, age_at_onset)))
+
+mean(pull(df_mci_bl, current_age))
+
+female_part = filter(df_mci_bl, sex == "female")
+carrier_female = filter(df_mci_bl, apoe4 == "carrier" & sex == "female")
+proportion <- nrow(carrier_female)/nrow(female_part)
+```
+
+
+whether some participants appear in only the baseline or amyloid datasets
+
+```{r}
+common_part = intersect(df_mci_bl$id, df_mci_amyloid$id)
+
+bl_only = anti_join(df_mci_bl, df_mci_amyloid, by = "id")
+
+amyloid_only = 
+  anti_join(df_mci_amyloid, df_mci_bl, by = "id") |> 
+  distinct(id, .keep_all = TRUE)
+```
+
+
+
+Combine the demographic and biomarker datasets
+
+```{r}
+df_combined = inner_join(df_mci_bl, df_mci_amyloid, by = "id")
+```
 
