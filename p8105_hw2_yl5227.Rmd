@@ -205,7 +205,7 @@ df_mci_bl =
   filter(current_age < age_at_onset|is.na(age_at_onset))
 ```
 
-
+The `df_mci_bl` data has `r nrow(df_mci_bl)` observations and `r ncol(df_mci_bl)` variables, recorded sex, year of education, age at MCI onset and whether the study participant is a apoe4 carrier with age at the beginning of the study ranging from `r min(df_mci_bl$current_age)` to `r max(df_mci_bl$current_age)`.
 
 
 
@@ -224,6 +224,8 @@ df_mci_amyloid =
                values_to = "amyloid_ratio") |> 
   rename(id = study_id)
 ```
+
+The `df_mci_amyloid` data has `r nrow(df_mci_amyloid)` observations and `r ncol(df_mci_amyloid)` variables, recorded amyloid ratio at different time from study subject `r min(df_mci_amyloid$id)` to `r max(df_mci_amyloid$id)`.
 
 
 How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
@@ -262,5 +264,14 @@ Combine the demographic and biomarker datasets
 
 ```{r}
 df_combined = inner_join(df_mci_bl, df_mci_amyloid, by = "id")
+```
+
+**Let's talk about the `df_combined` dataset. The `df_combined` data has `r nrow(df_combined)` observations and `r ncol(df_combined)` variables and tells us about the study participants with unique identity number from age of `r min(df_combined$current_age)` to `r max(df_combined$current_age)`. It also tells us whether the participant has a later MCI onset and the age at onset. The dataset also includes the years of education, the gender, whether he is a apoe4 carrier and the amyloid raio measured at different time.**
+
+
+export the result as a CSV to my data directory.
+
+```{r}
+write_csv(df_combined, "data/df_combined.csv")
 ```
 
