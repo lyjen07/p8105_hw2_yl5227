@@ -107,10 +107,10 @@ There are missing values denoted as 'NA' for `close` and `unemployment_percent` 
 
 # Problem 2
 
-loading dataset
+Import and clean the `Mr. Trash Wheel` dataset.
 
 ```{r}
-df_tw = 
+df_mtw = 
   read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
              sheet = "Mr. Trash Wheel", 
              range = "A2:N586") |> 
@@ -119,6 +119,12 @@ df_tw =
          trash_wheel = "mr",
          year=as.numeric(year)) 
 ```
+
+The `Mr. Trash Wheel` data has `r nrow(df_mtw)` observations and `r ncol(df_mtw)` variables, ranging from years `r min(df_mtw$year)` to `r max(df_mtw$year)`. 
+
+
+
+Import and clean the `Professor Trash Wheel` dataset.
 
 ```{r}
 df_ptw = 
@@ -130,6 +136,11 @@ df_ptw =
          trash_wheel = "professor")
 ```
 
+The `Professor Trash Wheel` data has `r nrow(df_ptw)` observations and `r ncol(df_ptw)` variables ranging from years `r min(df_ptw$year)` to `r max(df_ptw$year)`. 
+
+
+Import and clean the `Gwynnda Trash Wheel` dataset.
+
 ```{r}
 df_gtw = 
   read_excel("data/202309 Trash Wheel Collection Data.xlsx", 
@@ -140,14 +151,42 @@ df_gtw =
          trash_wheel = "gwynnda")
 ```
 
+The `Gwynnda Trash Wheel` data has `r nrow(df_gtw)` observations and `r ncol(df_gtw)` variables, ranging from years `r min(df_gtw$year)` to `r max(df_gtw$year)`.
 
-combine 3 datasets
+
+combine 3 datasets, and some statistics about the combined data.
 
 ```{r}
 df_merge_tw =
-  bind_rows(df_tw, df_gtw, df_ptw)
+  bind_rows(df_mtw, df_gtw, df_ptw)
 ```
 
+The combined dataset has `r nrow(df_merge_tw) ` observations, each represents a distinct dumpster. There are `r ncol(df_merge_tw) ` variables in total include the dumpster number, the date collected, weight, volume, kinds of trash, the value of homes powered, and I have added one variable called "trash_wheel" indicates this data is from Mr. Trash Wheel's, Professor Trash Wheel's, or Gwynnda Trash Wheel's. This dataset tells us about the weight, volume, and type of trash collected by `Mr. Trash Wheel`, `Professor Trash Wheel`, or `Gwynnda Trash Wheel` for a given year from years `r min(df_merge_tw$year)` to `r max(df_merge_tw$year)`. It also tells us the number of household that the amount of electricity generated from collected trash can provide with an average household will use 30 kilowatts per day. 
+
+
+
+## For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+
+```{r}
+total_weight = 
+  df_merge_tw |> 
+  select(trash_wheel, weight_tons) |> 
+  filter(trash_wheel == "professor") |> 
+  summarise(sum(weight_tons))
+```
+
+The total weight of trash collected by Professor Wheel is `r total_weight` tons.
+
+```{r}
+options(scipen = 999)
+total_cigarette_butts = 
+  df_merge_tw |> 
+  select(trash_wheel, cigarette_butts, year, month) |> 
+  filter(trash_wheel == "gwynnda" & year == 2021 & month == "July") |> 
+  summarise(sum(cigarette_butts))
+```
+
+The total number of cigarette butts collected by Gwynnda in July of 2021 is `r total_cigarette_butts`.
 
 
 # Problem 3
@@ -188,8 +227,10 @@ mean(pull(df_mci_bl, current_age))
 female_part = filter(df_mci_bl, sex == "female")
 carrier_female = filter(df_mci_bl, apoe4 == "carrier" & sex == "female")
 proportion <- nrow(carrier_female)/nrow(female_part)
+proportion
 ```
 
+In this study, `r nrow(df_mci_bl)` participants were recruited, and `r sum(!is.na(pull(df_mci_bl, age_at_onset)))` of them developed MCI. The average baseline age is `r mean(pull(df_mci_bl, current_age))`. Finally, `r proportion*100`% of women in the study are APOE4 carriers.
 
 whether some participants appear in only the baseline or amyloid datasets
 
@@ -202,7 +243,6 @@ amyloid_only =
   anti_join(df_mci_amyloid, df_mci_bl, by = "id") |> 
   distinct(id, .keep_all = TRUE)
 ```
-
 
 
 Combine the demographic and biomarker datasets
