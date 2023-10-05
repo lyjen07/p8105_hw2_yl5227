@@ -120,7 +120,7 @@ df_mtw =
          year=as.numeric(year)) 
 ```
 
-The `Mr. Trash Wheel` data has `r nrow(df_mtw)` observations and `r ncol(df_mtw)` variables, ranging from years `r min(df_mtw$year)` to `r max(df_mtw$year)`. 
+**The `Mr. Trash Wheel` data has `r nrow(df_mtw)` observations and `r ncol(df_mtw)` variables, ranging from years `r min(df_mtw$year)` to `r max(df_mtw$year)`. **
 
 
 
@@ -136,7 +136,7 @@ df_ptw =
          trash_wheel = "professor")
 ```
 
-The `Professor Trash Wheel` data has `r nrow(df_ptw)` observations and `r ncol(df_ptw)` variables ranging from years `r min(df_ptw$year)` to `r max(df_ptw$year)`. 
+**The `Professor Trash Wheel` data has `r nrow(df_ptw)` observations and `r ncol(df_ptw)` variables ranging from years `r min(df_ptw$year)` to `r max(df_ptw$year)`. **
 
 
 Import and clean the `Gwynnda Trash Wheel` dataset.
@@ -151,7 +151,7 @@ df_gtw =
          trash_wheel = "gwynnda")
 ```
 
-The `Gwynnda Trash Wheel` data has `r nrow(df_gtw)` observations and `r ncol(df_gtw)` variables, ranging from years `r min(df_gtw$year)` to `r max(df_gtw$year)`.
+**The `Gwynnda Trash Wheel` data has `r nrow(df_gtw)` observations and `r ncol(df_gtw)` variables, ranging from years `r min(df_gtw$year)` to `r max(df_gtw$year)`.**
 
 
 combine 3 datasets, and some statistics about the combined data.
@@ -161,11 +161,11 @@ df_merge_tw =
   bind_rows(df_mtw, df_gtw, df_ptw)
 ```
 
-The combined dataset has `r nrow(df_merge_tw) ` observations, each represents a distinct dumpster. There are `r ncol(df_merge_tw) ` variables in total include the dumpster number, the date collected, weight, volume, kinds of trash, the value of homes powered, and I have added one variable called "trash_wheel" indicates this data is from Mr. Trash Wheel's, Professor Trash Wheel's, or Gwynnda Trash Wheel's. This dataset tells us about the weight, volume, and type of trash collected by `Mr. Trash Wheel`, `Professor Trash Wheel`, or `Gwynnda Trash Wheel` for a given year from years `r min(df_merge_tw$year)` to `r max(df_merge_tw$year)`. It also tells us the number of household that the amount of electricity generated from collected trash can provide with an average household will use 30 kilowatts per day. 
+**The combined dataset has `r nrow(df_merge_tw) ` observations, each represents a distinct dumpster. There are `r ncol(df_merge_tw) ` variables in total include the dumpster number, the date collected, weight, volume, kinds of trash, the value of homes powered, and I have added one variable called "trash_wheel" indicates this data is from Mr. Trash Wheel's, Professor Trash Wheel's, or Gwynnda Trash Wheel's. This dataset tells us about the weight, volume, and type of trash collected by `Mr. Trash Wheel`, `Professor Trash Wheel`, or `Gwynnda Trash Wheel` for a given year from years `r min(df_merge_tw$year)` to `r max(df_merge_tw$year)`. It also tells us the number of household that the amount of electricity generated from collected trash can provide with an average household will use 30 kilowatts per day. **
 
 
 
-## For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
 
 ```{r}
 total_weight = 
@@ -175,7 +175,7 @@ total_weight =
   summarise(sum(weight_tons))
 ```
 
-The total weight of trash collected by Professor Wheel is `r total_weight` tons.
+**The total weight of trash collected by Professor Wheel is `r total_weight` tons.**
 
 ```{r}
 options(scipen = 999)
@@ -186,10 +186,13 @@ total_cigarette_butts =
   summarise(sum(cigarette_butts))
 ```
 
-The total number of cigarette butts collected by Gwynnda in July of 2021 is `r total_cigarette_butts`.
+**The total number of cigarette butts collected by Gwynnda in July of 2021 is `r total_cigarette_butts`.**
 
 
 # Problem 3
+
+
+Import `MCI_baseline.csv` and skip the first row in the original data which contains explanations of the variables, and use `na=` to change `.` in the original data into _NA_. `janitor::clean_names` is used to clean variable names. `mutate()` is used to encode sex and APOE4 carrier status with male/female and carrier/non-carrier instead of "1" and "0". Then `filter()` is used to exclude the subjects which doesn't meet the inclusion criteria - has MCI by the time of study enrollment.
 
 ```{r}
 df_mci_bl =
@@ -201,6 +204,14 @@ df_mci_bl =
          apoe4 = ifelse(apoe4 == 1, "carrier", "non-carrier")) |> 
   filter(current_age < age_at_onset|is.na(age_at_onset))
 ```
+
+
+
+
+
+
+
+Import `mci_amyloid.csv` and skip the first row in the original data which contains explanations of the variables, and use `na=` to change non-entry data in the original data into _NA_. `janitor::clean_names` is used to clean variable names. `pivot_long()` is used to tidy the dataset with measured values of biomarker in one column by different time. `rename` is used to make the id variable name of `df_mci_bl` and `df_mci_amyloid` consistent.
 
 ```{r}
 df_mci_amyloid =
@@ -230,7 +241,8 @@ proportion <- nrow(carrier_female)/nrow(female_part)
 proportion
 ```
 
-In this study, `r nrow(df_mci_bl)` participants were recruited, and `r sum(!is.na(pull(df_mci_bl, age_at_onset)))` of them developed MCI. The average baseline age is `r mean(pull(df_mci_bl, current_age))`. Finally, `r proportion*100`% of women in the study are APOE4 carriers.
+**In this study, `r nrow(df_mci_bl)` participants were recruited, and `r sum(!is.na(pull(df_mci_bl, age_at_onset)))` of them developed MCI. The average baseline age is `r mean(pull(df_mci_bl, current_age))`. Finally, `r proportion*100`% of women in the study are APOE4 carriers.**
+
 
 whether some participants appear in only the baseline or amyloid datasets
 
@@ -244,6 +256,7 @@ amyloid_only =
   distinct(id, .keep_all = TRUE)
 ```
 
+**There are `r length(common_part)` participants included in both the baseline and amyloid datasets. `r nrow(bl_only)` participants appear in only the baseline dataset, and `r nrow(amyloid_only)` participants appear in only the amyloid dataset.**
 
 Combine the demographic and biomarker datasets
 
